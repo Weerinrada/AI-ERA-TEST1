@@ -153,7 +153,8 @@ def get_juristic_id_news(company_name, llm):
         if "I apologize" in symbol_ai or "I do not have any information" in symbol_ai:
             print("No stock symbol found for the given company.")
             result = df[
-                df["บริษัท"].str.contains(company_name, case=False, na=False, regex=False)
+                # df["บริษัท"].str.contains(company_name, case=False, na=False, regex=False)
+            df["บริษัท"] == comp_name
             ]
             if result.empty:
                 print(f"No matching company found for '{comp_name}'")
@@ -162,10 +163,11 @@ def get_juristic_id_news(company_name, llm):
                 # display(result)
         else:
             result = df[
+                df["หลักทรัพย์"] == symbol_ai
                 # df["บริษัท"].str.contains(comp_name, case=False, na=False, regex=False)
                 # & 
-                df["หลักทรัพย์"].str.contains(
-                    symbol_ai, case=False, na=False, regex=False
+                # df["หลักทรัพย์"].str.contains(
+                #     symbol_ai, case=False, na=False, regex=False
                 # )
             ]
             if result.empty:
