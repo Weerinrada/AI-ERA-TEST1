@@ -540,12 +540,12 @@ def display_feedback():
             get_feedback = make_clickable(feed["Feedback"], feed["link"])
             st.markdown(get_feedback, unsafe_allow_html=True)
 
-st.cache_data(show_spinner=False)
+
 def process_and_display_results(company_name, llm):
     juristic_id, symbol, company_news, juris_id = get_juristic_id_news(
         company_name=company_name, llm=llm
     )
-
+    print("Symbol: ", symbol)
     if not juristic_id or any(
         phrase in juristic_id
         for phrase in ["ขออภัยค่ะ", "ไม่มีเลขทะเบียนนิติบุคคล", "ไม่พบข้อมูล", "ไม่สามารถค้นหาได้"]
@@ -581,7 +581,6 @@ def process_and_display_results(company_name, llm):
     display_feedback()
 
     st.session_state.analysis_done = True
-
 
 def main():
     st.set_page_config(
