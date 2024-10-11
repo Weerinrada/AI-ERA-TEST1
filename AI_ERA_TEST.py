@@ -20,7 +20,7 @@ from botocore.config import Config
 import time
 from PIL import Image
 from googlesearch import search
-
+from fuzzywuzzy import fuzz
 # Constants and configurations
 REGION_NAME = "ap-southeast-1"
 MODEL_ID = "anthropic.claude-3-5-sonnet-20240620-v1:0"
@@ -76,6 +76,7 @@ def clean_html(html_content):
     text = soup.get_text(separator=" ")
     clean_text = " ".join(text.split())
     return clean_text
+
 
 
 def get_juristic_id_news(company_name, llm):
@@ -143,6 +144,8 @@ def get_juristic_id_news(company_name, llm):
 
     print(f"Symbol AI: {symbol_ai}")
 
+
+
     url = "https://www.set.or.th/dat/eod/listedcompany/static/listedCompanies_th_TH.xls"
     response = requests.get(url)
     if response.status_code == 200:
@@ -154,7 +157,7 @@ def get_juristic_id_news(company_name, llm):
             print("No stock symbol found for the given company.")
             result = df[
                 # df["บริษัท"].str.contains(company_name, case=False, na=False, regex=False)
-            df["บริษัท"] == comp_name
+                (df['บริษัท'].apply(lambda x: fuzzy_match(x, comp_name)))
             ]
             if result.empty:
                 print(f"No matching company found for '{comp_name}'")
@@ -162,14 +165,7 @@ def get_juristic_id_news(company_name, llm):
                 print(f"Found company information without stock symbol:")
                 # display(result)
         else:
-            result = df[
-                df["หลักทรัพย์"] == symbol_ai
-                # df["บริษัท"].str.contains(comp_name, case=False, na=False, regex=False)
-                # & 
-                # df["หลักทรัพย์"].str.contains(
-                #     symbol_ai, case=False, na=False, regex=False
-                # )
-            ]
+            result = df[(df['บริษัท'].apply(lambda x: fuzzy_match(x, comp_name))) & (df['หลักทรัพย์'] == symbol_ai)]
             if result.empty:
                 print(
                     f"No matching company found for '{comp_name}' with symbol '{symbol_ai}'"
@@ -186,6 +182,7 @@ def get_juristic_id_news(company_name, llm):
     # else:
     #     symbol_with_bk = None
     return juristic_id, symbol_with_bk, company_news, juris_id
+
 
 
 def get_financial_data(juristic_id, symbol=None):
@@ -374,7 +371,9 @@ def run_analysis_in_parallel(
 
     return comp_info, comp_fin
 
-
+def fuzzy_match(x, keyword, threshold=80):
+    return fuzz.partial_ratio(x.lower(), keyword.lower()) >= threshold
+    
 def extract_table_data(data):
     table_data = []
     table_started = False
