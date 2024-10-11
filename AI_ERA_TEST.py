@@ -167,7 +167,7 @@ def get_juristic_id_news(company_name, llm):
             symbol_with_bk = None
 
     start_search = time.time()
-    result_query = search_news(f"ข่าวเกี่ยวกับ {comp_name}")
+    result_query = search_news(f"ข่าวเกี่ยวกับ {comp_name} หรือ {symbol}")
     company_news = [
         {
             "title": item["title"],
