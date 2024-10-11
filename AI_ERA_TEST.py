@@ -560,7 +560,7 @@ def process_and_display_results(company_name, llm):
     )
 
     fin_data, data, url_fin = get_financial_data(juristic_id=juristic_id, symbol=symbol)
-
+    print("URL FINANCE: ", url_fin)
     officers = fin_data["assetProfile"].get("companyOfficers", [])
     officer_names = [officer["name"] for officer in officers if "name" in officer]
     officer_title = [officer["title"] for officer in officers if "title" in officer]
@@ -576,8 +576,9 @@ def process_and_display_results(company_name, llm):
     st.subheader("ผลการค้นหาและวิเคราะห์ข้อมูล")
     for item in formatted_company_details_analysis:
         slowly_display_text(item, delay=0.001)
-
+    print("Company News: \n", company_news)
     display_financial_analysis(formatted_financial_analysis)
+    print("กำลังสร้าง reference")
     display_references(company_news, url_fin)
     display_feedback()
 
