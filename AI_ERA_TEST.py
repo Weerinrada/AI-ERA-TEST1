@@ -99,7 +99,16 @@ def get_juristic_id_news(company_name, llm):
     juristic_id = (
         comp_id.content.strip() if hasattr(comp_id, "content") else str(comp_id).strip()
     )
+    print(f"Juristic_id: {juristic_id}")
+    url_juristic_id = f"https://data.creden.co/company/general/{juristic_id}"
 
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36"
+    }
+    response_juris_id = requests.get(url_juristic_id, headers=headers)
+    comp_data = clean_html(response_juris_id.text)
+    print("Company Data: \n")
+    print(comp_data)
     start_search = time.time()
     result_query = search_news(f"ข่าวเกี่ยวกับบริษัท {company_name}")
     company_news = [
@@ -112,9 +121,8 @@ def get_juristic_id_news(company_name, llm):
     ]
     print(f"\n Running time process Search for News: {time.time() - start_search}")
 
-
-    prompt_comp_name = f"""What is the full company name of in Thai language of {company_name}? 
-    Please provide only the company name without any additional text. ถ้าเป็นบริษัทในตลาดหลักทรัพย์ stock exchange หรือ SET หรือ mai ให้ใช้ชื่อที่จดทะเบียนในตลาดหลักทรัพย์"""
+    prompt_comp_name = f"""What is the full company name in Thai language from {comp_data}? 
+    Please provide only the company name without any additional text."""
     response_comp_name = llm.invoke(prompt_comp_name, temperature=0.0, top_p=1)
     comp_name = (
         response_comp_name.content.strip()
@@ -123,11 +131,11 @@ def get_juristic_id_news(company_name, llm):
     )
     print(f"Full company's Name: {comp_name}")
     # If not found, ask Claude for help
-    prompt_symbol = f"""What is the stock symbol for the {comp_name}?
+    prompt_symbol = f"""What is the stock symbol or ชื่อย่อในตลาดหลักทรัพย์ for the {comp_name}?
     Please provide only the symbol without any additional text.
     """
 
-    response_symbol = llm.invoke(prompt_symbol, temperature=0.0, top_p=0.99)
+    response_symbol = llm.invoke(prompt_symbol, temperature=0.0, top_p=1)
     if hasattr(response_symbol, "content"):
         symbol_ai = response_symbol.content.strip()
     else:
@@ -155,9 +163,9 @@ def get_juristic_id_news(company_name, llm):
         else:
             result = df[
                 df["บริษัท"].str.contains(comp_name, case=False, na=False, regex=False)
-                & df["หลักทรัพย์"].str.contains(
-                    symbol_ai, case=False, na=False, regex=False
-                )
+                # & df["หลักทรัพย์"].str.contains(
+                #     symbol_ai, case=False, na=False, regex=False
+                # )
             ]
             if result.empty:
                 print(
@@ -172,9 +180,8 @@ def get_juristic_id_news(company_name, llm):
             symbol_with_bk = f"{symbol}.BK"
         else:
             symbol_with_bk = None
-    else:
-        symbol_with_bk = None
-
+    # else:
+    #     symbol_with_bk = None
     return juristic_id, symbol_with_bk, company_news, juris_id
 
 
