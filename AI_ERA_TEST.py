@@ -303,7 +303,7 @@ def get_comp_fin(llm, company_name, fin_data, data, company_news):
     {company_news} and {data}
     
 1. Analysis of financial statements and the company's financial situation. If it's a listed company, analyze from {fin_data}. If not a listed company in the stock market DO NOT Show any Data and explain why:
-    - Income statement, analyzing financial statements (สินทรัพย์รวม (Total Assets), Equity, Total Revenue, Cost Of Revenue, Net Profit or (Net Income From Continuing Operation Net Minority Interest)(กำไรสุทธิ), Profit (Loss) from Other Activities (กำไร (ขาดทุน) จากกิจกรรมอื่น) (with symbol +/-), Total Debt, Net Dept, for the past 3 years, (Must be provided data in table format)
+    - Income statement, analyzing financial statements (สินทรัพย์รวม (Total Assets), Equity, Total Revenue, Cost Of Revenue, Net Profit or (Net Income From Continuing Operation Net Minority Interest)(กำไรสุทธิ), Profit (Loss) from Other Activities (กำไร (ขาดทุน) จากกิจกรรมอื่น) (with symbol +/-), Total Debt, Net Dept, for the past 3 years, (Must be provided data in table format only)
     - Shareholders' equity or Stockholders Equity
     - Show liquidity indicators such as Return of Asset (ROA in %, yoy), Return of Equity (ROE in %, yoy), D/E Ratio (Debt to Equity Ratio), current ratio, and quick ratio
     - Summarize the company's financial liquidity
