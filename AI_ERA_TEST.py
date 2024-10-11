@@ -108,19 +108,7 @@ def get_juristic_id_news(company_name, llm):
     }
     response_juris_id = requests.get(url_juristic_id, headers=headers)
     comp_data = clean_html(response_juris_id.text)
-    print("Company Data: \n")
-    print(comp_data)
-    start_search = time.time()
-    result_query = search_news(f"ข่าวเกี่ยวกับบริษัท {company_name}")
-    company_news = [
-        {
-            "title": item["title"],
-            "url": item["link"],
-            "snippet": item.get("snippet", "No snippet available"),
-        }
-        for item in result_query.get("items", [])
-    ]
-    print(f"\n Running time process Search for News: {time.time() - start_search}")
+
 
     prompt_comp_name = f"""What is the full company name in Thai language from {comp_data}? 
     Please provide only the company name without any additional text."""
@@ -143,8 +131,6 @@ def get_juristic_id_news(company_name, llm):
         symbol_ai = str(response_symbol).strip()
 
     print(f"Symbol AI: {symbol_ai}")
-
-
 
     url = "https://www.set.or.th/dat/eod/listedcompany/static/listedCompanies_th_TH.xls"
     response = requests.get(url)
@@ -179,6 +165,18 @@ def get_juristic_id_news(company_name, llm):
             symbol_with_bk = f"{symbol}.BK"
         else:
             symbol_with_bk = None
+
+    start_search = time.time()
+    result_query = search_news(f"ข่าวเกี่ยวกับ {comp_name}")
+    company_news = [
+        {
+            "title": item["title"],
+            "url": item["link"],
+            "snippet": item.get("snippet", "No snippet available"),
+        }
+        for item in result_query.get("items", [])
+    ]
+    print(f"\n Running time process Search for News: {time.time() - start_search}")
     # else:
     #     symbol_with_bk = None
     return juristic_id, symbol_with_bk, company_news, juris_id
