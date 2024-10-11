@@ -436,7 +436,8 @@ def setup_sidebar():
     st.sidebar.info(
         """
         ### เกี่ยวกับ AI E.R.A.
-        AI E.R.A. คือเครื่องมือวิเคราะห์ข้อมูลทางการเงินของบริษัทโดยใช้ AI 
+        AI E.R.A. คือเครื่องมือรวมรวมข้อมูลทางการเงินและข่าวสารเพื่อนำมาวิเคราะห์ข้อมูลทางการเงินของบริษัทโดยใช้ AI 
+        
         พัฒนาโดยทีม AI-UNDERWRITING [DDO-Krungsri Auto]
 
         ### วิธีใช้งาน
@@ -450,9 +451,8 @@ def setup_sidebar():
 
         ### ติดต่อเรา
         หากมีปัญหาในการใช้งาน กรุณาติดต่อ:
-        - อีเมล: ai_era_underwriting@krungsri.com
+        - อีเมล: weerinrada.wongrin@krungsri.com
         - โทร: 02-123-4567
-        - Line Official: @AIERA
         """
     )
 
@@ -667,7 +667,7 @@ def main():
 
     st.sidebar.markdown("---")
     st.sidebar.markdown("### เวอร์ชันแอปพลิเคชัน")
-    st.sidebar.info("AI E.R.A. v1.0.0")
+    st.sidebar.info("AI E.R.A. v0.0.1")
     st.sidebar.markdown("© 2024 AI-UNDERWRITING [DDO-Krungsri Auto]")
 
 
