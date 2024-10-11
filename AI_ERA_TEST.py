@@ -405,7 +405,7 @@ def setup_sidebar():
 
         ### ติดต่อเรา
         หากมีปัญหาในการใช้งาน กรุณาติดต่อ:
-        - อีเมล: ai_era@krungsri.com
+        - อีเมล: ai_era_underwriting@krungsri.com
         - โทร: 02-123-4567
         - Line Official: @AIERA
         """
