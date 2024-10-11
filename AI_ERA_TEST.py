@@ -515,6 +515,7 @@ def display_financial_analysis(formatted_financial_analysis):
             slowly_display_text(item, delay=0.001)
 
 
+
 def display_references(company_news, url_fin):
     if company_news:
         st.markdown("### แหล่งอ้างอิง:")
