@@ -112,14 +112,28 @@ def get_juristic_id_news(company_name, llm):
     ]
     print(f"\n Running time process Search for News: {time.time() - start_search}")
 
-    prompt_comp_name = f"""What is the full company name of in Thai language of {company_name} and {company_news}? 
-    Please provide only the company name without any additional text."""
-    response_comp_name = llm.invoke(prompt_comp_name, temperature=0.0, top_p=0.9)
+
+    prompt_comp_name = f"""What is the full company name of in Thai language of {company_name}? 
+    Please provide only the company name without any additional text. ถ้าเป็นบริษัทในตลาดหลักทรัพย์ stock exchange หรือ SET หรือ mai ให้ใช้ชื่อที่จดทะเบียนในตลาดหลักทรัพย์"""
+    response_comp_name = llm.invoke(prompt_comp_name, temperature=0.0, top_p=1)
     comp_name = (
         response_comp_name.content.strip()
         if hasattr(response_comp_name, "content")
         else str(response_comp_name).strip()
     )
+    print(f"Full company's Name: {comp_name}")
+    # If not found, ask Claude for help
+    prompt_symbol = f"""What is the stock symbol for the {comp_name}?
+    Please provide only the symbol without any additional text.
+    """
+
+    response_symbol = llm.invoke(prompt_symbol, temperature=0.0, top_p=0.99)
+    if hasattr(response_symbol, "content"):
+        symbol_ai = response_symbol.content.strip()
+    else:
+        symbol_ai = str(response_symbol).strip()
+
+    print(f"Symbol AI: {symbol_ai}")
 
     url = "https://www.set.or.th/dat/eod/listedcompany/static/listedCompanies_th_TH.xls"
     response = requests.get(url)
@@ -128,7 +142,31 @@ def get_juristic_id_news(company_name, llm):
         df = dfs[0]
         df.columns = df.iloc[1]
         df = df.iloc[2:].reset_index(drop=True)
-        result = df[df["บริษัท"] == comp_name]
+        if "I apologize" in symbol_ai or "I do not have any information" in symbol_ai:
+            print("No stock symbol found for the given company.")
+            result = df[
+                df["บริษัท"].str.contains(comp_name, case=False, na=False, regex=False)
+            ]
+            if result.empty:
+                print(f"No matching company found for '{comp_name}'")
+            else:
+                print(f"Found company information without stock symbol:")
+                # display(result)
+        else:
+            result = df[
+                df["บริษัท"].str.contains(comp_name, case=False, na=False, regex=False)
+                & df["หลักทรัพย์"].str.contains(
+                    symbol_ai, case=False, na=False, regex=False
+                )
+            ]
+            if result.empty:
+                print(
+                    f"No matching company found for '{comp_name}' with symbol '{symbol_ai}'"
+                )
+            else:
+                print(f"Found company information:")
+                # display(result)
+
         if not result.empty:
             symbol = result.iloc[0]["หลักทรัพย์"]
             symbol_with_bk = f"{symbol}.BK"
