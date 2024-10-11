@@ -197,7 +197,7 @@ def get_financial_data(juristic_id, symbol=None):
 def format_analysis(analysis):
     return [line.strip() for line in analysis.split("\n") if line.strip()]
 
-@st.cache_data(show_spinner=False)
+
 def get_comp_info(llm, company_name, fin_data, data, company_news, company_officers):
     comp_profile = fin_data["assetProfile"]
     system_template = """You are specialized in financial analysis and credit analysis for auto loans. Your task is to analyze financial data and provide insights."""
@@ -450,14 +450,14 @@ def set_environment_variables(
     os.environ["api_key"] = api_key
     os.environ["cse_id"] = cse_id
 
-@st.cache_data(show_spinner=False)
+
 def clear_data():
     st.session_state.company_name = ""
     st.session_state.analysis_done = False
     st.session_state.input_key = str(uuid.uuid4())
     st.rerun()
 
-@st.cache_data(show_spinner=False)
+
 def display_financial_analysis(formatted_financial_analysis):
     table_data = extract_table_data(formatted_financial_analysis)
     table_created = False
@@ -469,7 +469,7 @@ def display_financial_analysis(formatted_financial_analysis):
         elif "|" not in item and "\t" not in item and item.strip() != "":
             slowly_display_text(item, delay=0.001)
 
-@st.cache_data(show_spinner=False)
+
 def display_references(company_news, url_fin):
     if company_news:
         st.markdown("### แหล่งอ้างอิง:")
