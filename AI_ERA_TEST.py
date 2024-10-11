@@ -24,7 +24,7 @@ from googlesearch import search
 # Constants and configurations
 REGION_NAME = "ap-southeast-1"
 MODEL_ID = "anthropic.claude-3-5-sonnet-20240620-v1:0"
-# API_KEY = "QkTDGZmB7bu789U71zRFW2Hu"
+
 
 custom_config = Config(
     read_timeout=400,
@@ -220,7 +220,7 @@ def get_comp_info(llm, company_name, fin_data, data, company_news, company_offic
         - Changes in company status (must be provided, if not available, explain)
         - Juristic ID of the company
         - Business size (S/M/L)
-        - Business group
+        - Business group/category
         - Type of juristic or company type
         - Company address or location (include postal code if available)
         - Phone number (must be provided)
@@ -244,7 +244,7 @@ def get_comp_info(llm, company_name, fin_data, data, company_news, company_offic
     ).to_messages()
 
     response = llm.invoke(
-        messages_comp_detail, temperature=0.0, max_tokens=10000000, top_p=0.95
+        messages_comp_detail, temperature=0.0, max_tokens=4096, top_p=0.99, top_k = 250
     )
     return response.content if hasattr(response, "content") else str(response)
 
@@ -297,7 +297,7 @@ def get_comp_fin(llm, company_name, fin_data, data, company_news):
     ).to_messages()
 
     response = llm.invoke(
-        messages_comp_info, temperature=0.0, max_tokens=10000000, top_p=0.95
+        messages_comp_info, temperature=0.0, max_tokens=4096, top_p=0.99
     )
     return response.content if hasattr(response, "content") else str(response)
 
