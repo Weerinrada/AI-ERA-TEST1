@@ -9,3 +9,4 @@ numpy == 1.25.2
 yfinance == 0.2.41
 botocore == 1.34.162
 googlesearch_python == 1.2.5
+fuzzywuzzy == 0.18.0
