@@ -614,6 +614,7 @@ def main():
     setup_sidebar()
     setup_main_content()
 
+
     (
         aws_access_key_id,
         aws_secret_access_key,
@@ -622,11 +623,8 @@ def main():
         cse_id,
     ) = setup_credentials()
 
-    if not aws_access_key_id or not aws_secret_access_key or not aws_session_token:
-        st.warning("กรุณากรอก AWS credentials ให้ครบถ้วน")
-        return
-    if not api_key or not cse_id:
-        st.warning("กรุณากรอก Google API Key หรือ CSE_ID ให้ครบถ้วน")
+    if not aws_access_key_id or not aws_secret_access_key or not aws_session_token or not api_key or not cse_id:
+        st.warning("กรุณากรอก AWS credentials หรือ Google API Key หรือ CSE_ID ให้ครบถ้วน")
         return
 
     try:
