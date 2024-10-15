@@ -54,7 +54,6 @@ def initialize_bedrock_client(
     )
 
 
-
 def search_news(query):
     url = f"https://www.googleapis.com/customsearch/v1"
     params = {
@@ -77,6 +76,7 @@ def clean_html(html_content):
     text = soup.get_text(separator=" ")
     clean_text = " ".join(text.split())
     return clean_text
+
 
 def get_juristic_id_news(company_name, llm):
     start_search_juris_id = time.time()
@@ -195,6 +195,7 @@ def get_juristic_id_news(company_name, llm):
     #     symbol_with_bk = None
     return juristic_id, symbol_with_bk, company_news, juris_id, comp_profile
 
+
 def get_financial_data(juristic_id, symbol=None):
     fin_data = {}
     data = None
@@ -301,7 +302,7 @@ def get_comp_info(
     ).to_messages()
 
     response = llm.invoke(
-        messages_comp_detail, temperature=0.0, max_tokens=4096, top_p=0.99, top_k = 250
+        messages_comp_detail, temperature=0.0, max_tokens=4096, top_p=0.99, top_k=250
     )
     return response.content if hasattr(response, "content") else str(response)
 
@@ -474,6 +475,7 @@ def setup_sidebar():
         """
     )
 
+
 def setup_main_content():
     banner_image = Image.open("images/J7.jpeg")
     resized_image = banner_image.resize((1000, 200))
@@ -488,6 +490,7 @@ def setup_main_content():
         """,
         unsafe_allow_html=True,
     )
+
 
 
 def setup_credentials():
@@ -668,7 +671,6 @@ def main():
             with st.spinner("กำลังวิเคราะห์... กรุณารอสักครู่นะคะ"):
                 try:
                     start_time = time.time()
-                    st.cache_data(show_spinner=False)
                     process_and_display_results(company_name, llm)
                     end_time = time.time()
                     st.success(
