@@ -248,7 +248,9 @@ def format_analysis(analysis):
     return [line.strip() for line in analysis.split("\n") if line.strip()]
 
 
-def get_comp_info(llm, company_name, fin_data, data, company_news, company_officers):
+def get_comp_info(
+    llm, company_name, fin_data, data, company_news, company_officers, comp_profile_df
+):
     comp_profile = fin_data["assetProfile"]
     system_template = """You are specialized in financial analysis and credit analysis for auto loans. Your task is to analyze financial data and provide insights."""
     system_message_prompt = SystemMessagePromptTemplate.from_template(system_template)
@@ -261,16 +263,15 @@ def get_comp_info(llm, company_name, fin_data, data, company_news, company_offic
     {company_news}
 
     Please provide a comprehensive analysis of the company's data, including:
-    Find the registration number or juristic person number of {company_name} from {company_news} 
 
-        Company Overview: Summarize the company overview, including the full name. If the company name doesn't match or there's no information in the stock market, indicate that it's not a listed company and use information from {data} and {company_news}. If the company name matches or has information in the stock market, indicate that it's a listed company, using information from {comp_profile}, {comp_profile_df}, and {company_news}. If there's no juristic ID, use information from {company_news}  
+    Company Overview: Summarize the company overview, including the full name. If the company name doesn't match or there's no information in the stock market, indicate that it's not a listed company and use information from {data} and {company_news}. If the company name matches or has information in the stock market, indicate that it's a listed company, using information from {comp_profile}, {comp_profile_df}, and {company_news}. If there's no juristic ID, use information from {company_news} 
         - Registered capital
         - Registration date
         - Company status, e.g., still operating or dissolved
         - Changes in company status (must be provided, if not available, explain)
         - Juristic ID of the company
         - Business size (S/M/L)
-        - Business group/category
+        - Business group
         - Type of juristic or company type
         - Company address or location (include postal code if available)
         - Phone number (must be provided)
@@ -291,6 +292,7 @@ def get_comp_info(llm, company_name, fin_data, data, company_news, company_offic
         comp_profile=comp_profile,
         company_news=company_news,
         company_officers=company_officers,
+        comp_profile_df=comp_profile_df,
     ).to_messages()
 
     response = llm.invoke(
@@ -350,7 +352,6 @@ def get_comp_fin(llm, company_name, fin_data, data, company_news):
         messages_comp_info, temperature=0.0, max_tokens=4096, top_p=0.99
     )
     return response.content if hasattr(response, "content") else str(response)
-
 
 
 def run_analysis_in_parallel(
@@ -524,7 +525,6 @@ def display_financial_analysis(formatted_financial_analysis):
             slowly_display_text(item, delay=0.001)
 
 
-
 def display_references(company_news, url_fin):
     if company_news:
         st.markdown("### แหล่งอ้างอิง:")
@@ -552,7 +552,7 @@ def display_feedback():
 
 
 def process_and_display_results(company_name, llm):
-    juristic_id, symbol, company_news, juris_id = get_juristic_id_news(
+    juristic_id, symbol, company_news, juris_id, comp_profile_df = get_juristic_id_news(
         company_name=company_name, llm=llm
     )
     print("Symbol: ", symbol)
@@ -567,7 +567,6 @@ def process_and_display_results(company_name, llm):
     slowly_display_text(
         f"ผลการค้นหาเลขนิติบุคคลของ {company_name} คือ {juristic_id}", delay=0.009
     )
-
 
     fin_data, data, url_fin = get_financial_data(juristic_id=juristic_id, symbol=symbol)
 
@@ -589,13 +588,11 @@ def process_and_display_results(company_name, llm):
         comp_profile_df,
     )
 
-
     st.subheader("ผลการค้นหาและวิเคราะห์ข้อมูล")
     for item in formatted_company_details_analysis:
         slowly_display_text(item, delay=0.001)
-    print("Company News: \n", company_news)
+
     display_financial_analysis(formatted_financial_analysis)
-    print("กำลังสร้าง reference")
     display_references(company_news, url_fin)
     display_feedback()
 
@@ -621,6 +618,9 @@ def main():
 
     if not aws_access_key_id or not aws_secret_access_key or not aws_session_token:
         st.warning("กรุณากรอก AWS credentials ให้ครบถ้วน")
+        return
+    if not api_key or not cse_id:
+        st.warning("กรุณากรอก Google API Key หรือ CSE_ID ให้ครบถ้วน")
         return
 
     try:
