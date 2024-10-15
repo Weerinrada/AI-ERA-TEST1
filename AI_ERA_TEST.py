@@ -78,7 +78,6 @@ def clean_html(html_content):
     clean_text = " ".join(text.split())
     return clean_text
 
-
 def get_juristic_id_news(company_name, llm):
     start_search_juris_id = time.time()
     juris_query = search(f"เลขนิติบุคคล {company_name}", num_results=3, advanced=True)
@@ -184,12 +183,15 @@ def get_juristic_id_news(company_name, llm):
         for item in result_query.get("items", [])
     ]
     print(f"\n Running time process Search for News: {time.time() - start_search}")
-    comp_profile = df[df["หลักทรัพย์"] == symbol_with_bk]
+    if symbol_with_bk.empty:
+        comp_profile = pd.DataFrame()
+    else:
+        comp_profile = df[df["หลักทรัพย์"] == symbol]
+
     print(comp_profile)
     # else:
     #     symbol_with_bk = None
     return juristic_id, symbol_with_bk, company_news, juris_id, comp_profile
-
 
 def get_financial_data(juristic_id, symbol=None):
     fin_data = {}
