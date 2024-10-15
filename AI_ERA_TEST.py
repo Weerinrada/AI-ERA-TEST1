@@ -54,6 +54,7 @@ def initialize_bedrock_client(
     )
 
 
+
 def search_news(query):
     url = f"https://www.googleapis.com/customsearch/v1"
     params = {
@@ -61,7 +62,7 @@ def search_news(query):
         "cx": os.environ.get("cse_id"),
         "q": query,
         "sort": "date",
-        "dateRestrict": "y[2]",
+        "dateRestrict": "m[18]",
         "start": 1,
     }
     response = requests.get(url, params=params, timeout=30)
@@ -349,7 +350,7 @@ def get_comp_fin(llm, company_name, fin_data, data, company_news):
     ).to_messages()
 
     response = llm.invoke(
-        messages_comp_info, temperature=0.0, max_tokens=4096, top_p=0.99
+        messages_comp_info, temperature=0.0, max_tokens=4096, top_p=0.9999
     )
     return response.content if hasattr(response, "content") else str(response)
 
@@ -379,9 +380,11 @@ def run_analysis_in_parallel(
 
     return comp_info, comp_fin
 
+
 def fuzzy_match(x, keyword, threshold=80):
     return fuzz.partial_ratio(x.lower(), keyword.lower()) >= threshold
-    
+
+
 def extract_table_data(data):
     table_data = []
     table_started = False
@@ -461,11 +464,11 @@ def setup_sidebar():
 
         ### ติดต่อเรา
         หากมีปัญหาในการใช้งาน กรุณาติดต่อ:
-        - อีเมล: w.w@krungsri.com
-        - โทร: 02-296-2000
+        - อีเมล: ai_era@krungsri.com
+        - โทร: 02-123-4567
+        - Line Official: @AIERA
         """
     )
-
 
 def setup_main_content():
     banner_image = Image.open("images/J7.jpeg")
@@ -597,6 +600,7 @@ def process_and_display_results(company_name, llm):
     display_feedback()
 
     st.session_state.analysis_done = True
+
 
 def main():
     st.set_page_config(
