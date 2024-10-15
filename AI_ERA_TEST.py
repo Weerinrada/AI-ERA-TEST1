@@ -135,11 +135,11 @@ def get_juristic_id_news(company_name, llm):
 
     url = "https://www.set.or.th/dat/eod/listedcompany/static/listedCompanies_th_TH.xls"
     response = requests.get(url)
-
+    print('Response: ', response)
     if response.status_code == 200:
         # dfs = pd.read_html(response.text)
         dfs = pd.read_html(StringIO(response.text))
-        
+        print("Data: ", dfs)
         df = dfs[0]
         df.columns = df.iloc[1]
         df = df.iloc[2:].reset_index(drop=True)
