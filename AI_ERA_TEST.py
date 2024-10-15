@@ -685,7 +685,7 @@ def main():
 
     st.sidebar.markdown("---")
     st.sidebar.markdown("### เวอร์ชันแอปพลิเคชัน")
-    st.sidebar.info("AI E.R.A. v0.0.1")
+    st.sidebar.info("AI E.R.A. v1.0.0")
     st.sidebar.markdown("© 2024 AI-UNDERWRITING [DDO-Krungsri Auto]")
 
 
