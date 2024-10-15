@@ -173,10 +173,6 @@ def get_juristic_id_news(company_name, llm):
         else:
             symbol_with_bk = None
 
-
-    comp_profile = pd.DataFrame()
-
-    print(comp_profile)
     start_search = time.time()
     result_query = search_news(f"ข่าวเกี่ยวกับ {comp_name}")
     company_news = [
@@ -191,7 +187,7 @@ def get_juristic_id_news(company_name, llm):
 
     # else:
     #     symbol_with_bk = None
-    return juristic_id, symbol_with_bk, company_news, juris_id, comp_profile
+    return juristic_id, symbol_with_bk, company_news, juris_id
 
 
 def get_financial_data(juristic_id, symbol=None):
@@ -253,7 +249,7 @@ def format_analysis(analysis):
 
 
 def get_comp_info(
-    llm, company_name, fin_data, data, company_news, company_officers, comp_profile_df
+    llm, company_name, fin_data, data, company_news, company_officers
 ):
     comp_profile = fin_data["assetProfile"]
     system_template = """You are specialized in financial analysis and credit analysis for auto loans. Your task is to analyze financial data and provide insights."""
@@ -268,7 +264,7 @@ def get_comp_info(
 
     Please provide a comprehensive analysis of the company's data, including:
 
-    Company Overview: Summarize the company overview, including the full name. If the company name doesn't match or there's no information in the stock market, indicate that it's not a listed company and use information from {data} and {company_news}. If the company name matches or has information in the stock market, indicate that it's a listed company, using information from {comp_profile}, {comp_profile_df}, and {company_news}. If there's no juristic ID, use information from {company_news} 
+    Company Overview: Summarize the company overview, including the full name. If the company name doesn't match or there's no information in the stock market, indicate that it's not a listed company and use information from {data} and {company_news}. If the company name matches or has information in the stock market, indicate that it's a listed company, using information from {comp_profile} and {company_news}. If there's no juristic ID, use information from {company_news} 
         - Registered capital
         - Registration date
         - Company status, e.g., still operating or dissolved
@@ -295,8 +291,7 @@ def get_comp_info(
         data=data,
         comp_profile=comp_profile,
         company_news=company_news,
-        company_officers=company_officers,
-        comp_profile_df=comp_profile_df,
+        company_officers=company_officers
     ).to_messages()
 
     response = llm.invoke(
@@ -359,7 +354,7 @@ def get_comp_fin(llm, company_name, fin_data, data, company_news):
 
 
 def run_analysis_in_parallel(
-    llm, company_name, data, fin_data, company_news, company_officers, comp_profile_df
+    llm, company_name, data, fin_data, company_news, company_officers
 ):
     with concurrent.futures.ThreadPoolExecutor() as executor:
         comp_info = executor.submit(
@@ -369,8 +364,7 @@ def run_analysis_in_parallel(
             fin_data,
             data,
             company_news,
-            company_officers,
-            comp_profile_df,
+            company_officers
         )
         comp_fin = executor.submit(
             get_comp_fin, llm, company_name, fin_data, data, company_news
@@ -560,7 +554,7 @@ def display_feedback():
 
 
 def process_and_display_results(company_name, llm):
-    juristic_id, symbol, company_news, juris_id, comp_profile_df = get_juristic_id_news(
+    juristic_id, symbol, company_news, juris_id = get_juristic_id_news(
         company_name=company_name, llm=llm
     )
     print("Symbol: ", symbol)
@@ -592,8 +586,7 @@ def process_and_display_results(company_name, llm):
         data,
         fin_data,
         company_news,
-        company_officers,
-        comp_profile_df,
+        company_officers
     )
 
     st.subheader("ผลการค้นหาและวิเคราะห์ข้อมูล")
