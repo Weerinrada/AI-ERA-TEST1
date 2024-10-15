@@ -135,7 +135,7 @@ def get_juristic_id_news(company_name, llm):
 
     url = "https://www.set.or.th/dat/eod/listedcompany/static/listedCompanies_th_TH.xls"
     response = requests.get(url)
-    print('Response: ', response)
+    print("Response: ", response)
     if response.status_code == 200:
         # dfs = pd.read_html(response.text)
         dfs = pd.read_html(StringIO(response.text))
@@ -171,11 +171,11 @@ def get_juristic_id_news(company_name, llm):
                 print(f"Found company information:")
             print(result)
 
-        if not result.empty:
-            symbol = result.iloc[0]["หลักทรัพย์"]
-            symbol_with_bk = f"{symbol}.BK"
-        else:
-            symbol_with_bk = None
+    if not result.empty:
+        symbol = result.iloc[0]["หลักทรัพย์"]
+        symbol_with_bk = f"{symbol}.BK"
+    else:
+        symbol_with_bk = None
 
     start_search = time.time()
     result_query = search_news(f"ข่าวเกี่ยวกับ {comp_name}")
@@ -252,9 +252,7 @@ def format_analysis(analysis):
     return [line.strip() for line in analysis.split("\n") if line.strip()]
 
 
-def get_comp_info(
-    llm, company_name, fin_data, data, company_news, company_officers
-):
+def get_comp_info(llm, company_name, fin_data, data, company_news, company_officers):
     comp_profile = fin_data["assetProfile"]
     system_template = """You are specialized in financial analysis and credit analysis for auto loans. Your task is to analyze financial data and provide insights."""
     system_message_prompt = SystemMessagePromptTemplate.from_template(system_template)
@@ -295,7 +293,7 @@ def get_comp_info(
         data=data,
         comp_profile=comp_profile,
         company_news=company_news,
-        company_officers=company_officers
+        company_officers=company_officers,
     ).to_messages()
 
     response = llm.invoke(
@@ -368,7 +366,7 @@ def run_analysis_in_parallel(
             fin_data,
             data,
             company_news,
-            company_officers
+            company_officers,
         )
         comp_fin = executor.submit(
             get_comp_fin, llm, company_name, fin_data, data, company_news
@@ -470,11 +468,6 @@ def setup_sidebar():
         - Line Official: @AIERA
         """
     )
-    
-    st.sidebar.markdown("---")
-    st.sidebar.markdown("### เวอร์ชันแอปพลิเคชัน")
-    st.sidebar.info("AI E.R.A. v1.0.0")
-    st.sidebar.markdown("© 2024 AI-UNDERWRITING [DDO-Krungsri Auto]")
 
 
 def setup_main_content():
@@ -491,7 +484,6 @@ def setup_main_content():
         """,
         unsafe_allow_html=True,
     )
-
 
 
 def setup_credentials():
@@ -590,12 +582,7 @@ def process_and_display_results(company_name, llm):
         formatted_company_details_analysis,
         formatted_financial_analysis,
     ) = run_analysis_in_parallel(
-        llm,
-        company_name,
-        data,
-        fin_data,
-        company_news,
-        company_officers
+        llm, company_name, data, fin_data, company_news, company_officers
     )
 
     st.subheader("ผลการค้นหาและวิเคราะห์ข้อมูล")
@@ -619,7 +606,6 @@ def main():
     setup_sidebar()
     setup_main_content()
 
-
     (
         aws_access_key_id,
         aws_secret_access_key,
@@ -628,7 +614,13 @@ def main():
         cse_id,
     ) = setup_credentials()
 
-    if not aws_access_key_id or not aws_secret_access_key or not aws_session_token or not api_key or not cse_id:
+    if (
+        not aws_access_key_id
+        or not aws_secret_access_key
+        or not aws_session_token
+        or not api_key
+        or not cse_id
+    ):
         st.warning("กรุณากรอก AWS credentials หรือ Google API Key หรือ CSE_ID ให้ครบถ้วน")
         return
 
@@ -690,8 +682,10 @@ def main():
     #             )
     #         except Exception as e:
     #             st.error(f"เกิดข้อผิดพลาดในการสร้าง PDF: {e}")
-
-
+    st.sidebar.markdown("---")
+    st.sidebar.markdown("### เวอร์ชันแอปพลิเคชัน")
+    st.sidebar.info("AI E.R.A. v1.0.0")
+    st.sidebar.markdown("© 2024 AI-UNDERWRITING [DDO-Krungsri Auto]")
 
 
 if __name__ == "__main__":
