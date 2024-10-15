@@ -120,7 +120,7 @@ def get_juristic_id_news(company_name, llm):
     )
     print(f"Full company's Name: {comp_name}")
     # If not found, ask Claude for help
-    prompt_symbol = f"""What is the stock symbol or ชื่อย่อในตลาดหลักทรัพย์ for the {comp_name}?
+    prompt_symbol = f"""What is the stock symbol or ชื่อย่อในตลาดหลักทรัพย์ for the {comp_name} using {comp_data}?
     Please provide only the symbol without any additional text.
     """
 
