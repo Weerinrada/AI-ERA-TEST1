@@ -21,6 +21,8 @@ import time
 from PIL import Image
 from googlesearch import search
 from fuzzywuzzy import fuzz
+from io import StringIO
+
 # Constants and configurations
 REGION_NAME = "ap-southeast-1"
 MODEL_ID = "anthropic.claude-3-5-sonnet-20240620-v1:0"
@@ -135,7 +137,9 @@ def get_juristic_id_news(company_name, llm):
     response = requests.get(url)
 
     if response.status_code == 200:
-        dfs = pd.read_html(response.text)
+        # dfs = pd.read_html(response.text)
+        dfs = pd.read_html(StringIO(response.text))
+        
         df = dfs[0]
         df.columns = df.iloc[1]
         df = df.iloc[2:].reset_index(drop=True)
