@@ -133,6 +133,7 @@ def get_juristic_id_news(company_name, llm):
 
     url = "https://www.set.or.th/dat/eod/listedcompany/static/listedCompanies_th_TH.xls"
     response = requests.get(url)
+
     if response.status_code == 200:
         dfs = pd.read_html(response.text)
         df = dfs[0]
@@ -172,6 +173,12 @@ def get_juristic_id_news(company_name, llm):
         else:
             symbol_with_bk = None
 
+    if symbol_with_bk is None:
+        comp_profile = pd.DataFrame()
+    else:
+        comp_profile = df[df["หลักทรัพย์"] == symbol]
+
+    print(comp_profile)
     start_search = time.time()
     result_query = search_news(f"ข่าวเกี่ยวกับ {comp_name}")
     company_news = [
@@ -183,12 +190,7 @@ def get_juristic_id_news(company_name, llm):
         for item in result_query.get("items", [])
     ]
     print(f"\n Running time process Search for News: {time.time() - start_search}")
-    if symbol_with_bk is None:
-        comp_profile = pd.DataFrame()
-    else:
-        comp_profile = df[df["หลักทรัพย์"] == symbol]
 
-    print(comp_profile)
     # else:
     #     symbol_with_bk = None
     return juristic_id, symbol_with_bk, company_news, juris_id, comp_profile
