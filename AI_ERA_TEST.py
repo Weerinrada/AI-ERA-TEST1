@@ -173,10 +173,8 @@ def get_juristic_id_news(company_name, llm):
         else:
             symbol_with_bk = None
 
-    if symbol_with_bk is None:
-        comp_profile = pd.DataFrame()
-    else:
-        comp_profile = df[df["หลักทรัพย์"] == symbol]
+
+    comp_profile = pd.DataFrame()
 
     print(comp_profile)
     start_search = time.time()
