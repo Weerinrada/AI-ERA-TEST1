@@ -78,7 +78,6 @@ def clean_html(html_content):
     return clean_text
 
 
-
 def get_juristic_id_news(company_name, llm):
     start_search_juris_id = time.time()
     juris_query = search(f"เลขนิติบุคคล {company_name}", num_results=3, advanced=True)
@@ -109,9 +108,9 @@ def get_juristic_id_news(company_name, llm):
     response_juris_id = requests.get(url_juristic_id, headers=headers)
     comp_data = clean_html(response_juris_id.text)
 
-
     prompt_comp_name = f"""What is the full company name in Thai language from {comp_data}? 
-    Please provide only the company name without any additional text."""
+    Please provide only the company name without any additional text.
+    without The full company name in Thai language is: """
     response_comp_name = llm.invoke(prompt_comp_name, temperature=0.0, top_p=1)
     comp_name = (
         response_comp_name.content.strip()
@@ -139,26 +138,33 @@ def get_juristic_id_news(company_name, llm):
         df = dfs[0]
         df.columns = df.iloc[1]
         df = df.iloc[2:].reset_index(drop=True)
-        if "I apologize" in symbol_ai or "I do not have any information" in symbol_ai:
+        if (
+            "I apologize" in symbol_ai
+            or "I do not have any information" in symbol_ai
+            or "there is no stock symbol" in symbol_ai
+        ):
             print("No stock symbol found for the given company.")
             result = df[
                 # df["บริษัท"].str.contains(company_name, case=False, na=False, regex=False)
-                (df['บริษัท'].apply(lambda x: fuzzy_match(x, comp_name)))
+                (df["บริษัท"].apply(lambda x: fuzzy_match(x, comp_name)))
             ]
             if result.empty:
                 print(f"No matching company found for '{comp_name}'")
             else:
                 print(f"Found company information without stock symbol:")
-                # display(result)
+            print(result)
         else:
-            result = df[(df['บริษัท'].apply(lambda x: fuzzy_match(x, comp_name))) & (df['หลักทรัพย์'] == symbol_ai)]
+            result = df[
+                (df["บริษัท"].apply(lambda x: fuzzy_match(x, comp_name)))
+                & (df["หลักทรัพย์"] == symbol_ai)
+            ]
             if result.empty:
                 print(
                     f"No matching company found for '{comp_name}' with symbol '{symbol_ai}'"
                 )
             else:
                 print(f"Found company information:")
-                # display(result)
+            print(result)
 
         if not result.empty:
             symbol = result.iloc[0]["หลักทรัพย์"]
@@ -167,7 +173,7 @@ def get_juristic_id_news(company_name, llm):
             symbol_with_bk = None
 
     start_search = time.time()
-    result_query = search_news(f"ข่าวเกี่ยวกับ {comp_name} หรือ {symbol}")
+    result_query = search_news(f"ข่าวเกี่ยวกับ {comp_name}")
     company_news = [
         {
             "title": item["title"],
@@ -177,10 +183,11 @@ def get_juristic_id_news(company_name, llm):
         for item in result_query.get("items", [])
     ]
     print(f"\n Running time process Search for News: {time.time() - start_search}")
+    comp_profile = df[df["หลักทรัพย์"] == symbol_with_bk]
+    print(comp_profile)
     # else:
     #     symbol_with_bk = None
-    return juristic_id, symbol_with_bk, company_news, juris_id
-
+    return juristic_id, symbol_with_bk, company_news, juris_id, comp_profile
 
 
 def get_financial_data(juristic_id, symbol=None):
@@ -256,7 +263,7 @@ def get_comp_info(llm, company_name, fin_data, data, company_news, company_offic
     Please provide a comprehensive analysis of the company's data, including:
     Find the registration number or juristic person number of {company_name} from {company_news} 
 
-    Company Overview: Summarize the company overview, including the full name. If the company name doesn't match or there's no information in the stock market, indicate that it's not a listed company and use information from {data} and {company_news}. If the company name matches or has information in the stock market, indicate that it's a listed company, using information from {comp_profile} and {company_news}. If there's no juristic ID, use information from {company_news} 
+        Company Overview: Summarize the company overview, including the full name. If the company name doesn't match or there's no information in the stock market, indicate that it's not a listed company and use information from {data} and {company_news}. If the company name matches or has information in the stock market, indicate that it's a listed company, using information from {comp_profile}, {comp_profile_df}, and {company_news}. If there's no juristic ID, use information from {company_news}  
         - Registered capital
         - Registration date
         - Company status, e.g., still operating or dissolved
@@ -345,8 +352,9 @@ def get_comp_fin(llm, company_name, fin_data, data, company_news):
     return response.content if hasattr(response, "content") else str(response)
 
 
+
 def run_analysis_in_parallel(
-    llm, company_name, data, fin_data, company_news, company_officers
+    llm, company_name, data, fin_data, company_news, company_officers, comp_profile_df
 ):
     with concurrent.futures.ThreadPoolExecutor() as executor:
         comp_info = executor.submit(
@@ -357,6 +365,7 @@ def run_analysis_in_parallel(
             data,
             company_news,
             company_officers,
+            comp_profile_df,
         )
         comp_fin = executor.submit(
             get_comp_fin, llm, company_name, fin_data, data, company_news
@@ -559,8 +568,9 @@ def process_and_display_results(company_name, llm):
         f"ผลการค้นหาเลขนิติบุคคลของ {company_name} คือ {juristic_id}", delay=0.009
     )
 
+
     fin_data, data, url_fin = get_financial_data(juristic_id=juristic_id, symbol=symbol)
-    print("URL FINANCE: ", url_fin)
+
     officers = fin_data["assetProfile"].get("companyOfficers", [])
     officer_names = [officer["name"] for officer in officers if "name" in officer]
     officer_title = [officer["title"] for officer in officers if "title" in officer]
@@ -570,8 +580,15 @@ def process_and_display_results(company_name, llm):
         formatted_company_details_analysis,
         formatted_financial_analysis,
     ) = run_analysis_in_parallel(
-        llm, company_name, data, fin_data, company_news, company_officers
+        llm,
+        company_name,
+        data,
+        fin_data,
+        company_news,
+        company_officers,
+        comp_profile_df,
     )
+
 
     st.subheader("ผลการค้นหาและวิเคราะห์ข้อมูล")
     for item in formatted_company_details_analysis:
