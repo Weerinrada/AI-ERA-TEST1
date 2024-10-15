@@ -470,6 +470,11 @@ def setup_sidebar():
         - Line Official: @AIERA
         """
     )
+    
+    st.sidebar.markdown("---")
+    st.sidebar.markdown("### เวอร์ชันแอปพลิเคชัน")
+    st.sidebar.info("AI E.R.A. v1.0.0")
+    st.sidebar.markdown("© 2024 AI-UNDERWRITING [DDO-Krungsri Auto]")
 
 
 def setup_main_content():
@@ -686,10 +691,7 @@ def main():
     #         except Exception as e:
     #             st.error(f"เกิดข้อผิดพลาดในการสร้าง PDF: {e}")
 
-    st.sidebar.markdown("---")
-    st.sidebar.markdown("### เวอร์ชันแอปพลิเคชัน")
-    st.sidebar.info("AI E.R.A. v1.0.0")
-    st.sidebar.markdown("© 2024 AI-UNDERWRITING [DDO-Krungsri Auto]")
+
 
 
 if __name__ == "__main__":
