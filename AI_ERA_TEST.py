@@ -451,8 +451,8 @@ def setup_sidebar():
 
         ### ติดต่อเรา
         หากมีปัญหาในการใช้งาน กรุณาติดต่อ:
-        - อีเมล: weerinrada.wongrin@krungsri.com
-        - โทร: 02-123-4567
+        - อีเมล: w.w@krungsri.com
+        - โทร: 02-296-2000
         """
     )
 
